@@ -1,6 +1,6 @@
 import { client } from '..'
 import { ChatModel } from '../models/models/chat'
-import { UserType } from '../types'
+import { ChatModel as ChatType, UserType } from '../types'
 
 export const AllMembersAreUsers = async (members: string[]) => {
   if (!AllmembersAreDistinct(members)) return false
@@ -14,12 +14,12 @@ export const AllmembersAreDistinct = (members: string[]) => {
   return membersAreDistinct
 }
 
-export const existOtherChatEqual = async (members: string[]) => {
+export const ChatEqual = async (members: string[]) => {
   const allChats = await ChatModel.getChatsByUser(members[0])
-  const existOtherChatEqual = allChats.some(
+  const chatEqual = allChats.find(
     (chat) =>
       chat.members.length === members.length &&
       chat.members.every((member: UserType) => members.includes(member.user_id)),
   )
-  return existOtherChatEqual
+  return chatEqual as ChatType | undefined
 }

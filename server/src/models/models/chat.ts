@@ -1,25 +1,18 @@
 import { client } from '../..'
-import { AllMembersAreUsers, existOtherChatEqual } from '../../services/users'
+import { AllMembersAreUsers, ChatEqual } from '../../services/users'
 import { Chat } from '../sequelize/chat'
 import { Chat_user } from '../sequelize/chat_user'
 import { db } from '../sequelize/conection'
 
 export const ChatModel = {
-  //   getChatsById: async (id: string) => {
-  //     const chats = await Chat_user.findAll({
-  //       where: {
-  //         user_id: id,
-  //       },
-  //       include: [Chat],
-  //     })
-  //     return chats
-  //   },
   createChat: async (name: string, members: string[]) => {
     if (!(await AllMembersAreUsers(members))) {
       throw new Error('All members must be users')
     }
-    if (await existOtherChatEqual(members)) {
-      throw new Error('Chat already exist')
+    const chatEqual = await ChatEqual(members)
+    if (chatEqual) {
+      return chatEqual
+      // throw new Error('Chat already exist') //TODO return chat
     }
     //TODO verify not create before
     const transaccion = await db.transaction({ autocommit: false })
@@ -43,15 +36,6 @@ export const ChatModel = {
     await transaccion.commit()
     return chat
   },
-  //   getChatsByUser: async (id: string) => {
-  //     const chats = await Chat_user.findAll({
-  //       where: {
-  //         user_id: id,
-  //       },
-  //       include: [Chat],
-  //     })
-  //     return chats
-  //   },
   getChatsByUser: async (userId: string) => {
     const chats_user = await Chat_user.findAll({
       attributes: ['chat_id'],

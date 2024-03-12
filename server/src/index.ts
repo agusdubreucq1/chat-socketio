@@ -12,6 +12,7 @@ import { addUser } from './middlewares/addUser'
 import routerChat from './routes/chats'
 import { initDb } from './models/sequelize/config'
 import { errorHandler, unknownEndpoint } from './middlewares/handlerError'
+import routerMsg from './routes/messages'
 
 const app = express()
 const server = http.createServer(app)
@@ -47,9 +48,6 @@ const jwtCheck = auth({
   tokenSigningAlg: 'RS256',
 })
 
-app.use(jwtCheck)
-app.use(addUser)
-
 app.get('/authorized', jwtCheck, async (req, res) => {
   console.log(req.auth)
 
@@ -72,7 +70,8 @@ app.get('/authorized', jwtCheck, async (req, res) => {
 })
 
 app.use('/user', routerUser)
-app.use('/chat', jwtCheck, routerChat)
+app.use('/message', jwtCheck, addUser, routerMsg)
+app.use('/chat', jwtCheck, addUser, routerChat)
 
 app.use(errorHandler)
 app.use(unknownEndpoint)

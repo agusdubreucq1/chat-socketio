@@ -1,17 +1,40 @@
 import { useAuth0 } from '@auth0/auth0-react';
-import React from 'react';
-import LoginButton from '../components/LoginButton';
-import LogoutButton from '../components/LogoutButton';
-import Profile from '../components/Profile';
+import React, { useEffect } from 'react';
+import LoginButton from '../components/common/LoginButton';
+import LogoutButton from '../components/common/LogoutButton';
+// import Profile from './Profile';
 
-// import io from 'socket.io-client'
+import io, { Socket } from 'socket.io-client'
 
 // const socket = io('http://localhost:8080')
 // console.log(socket)
 
 const PruebaAuth = () => {
 
+
+    const [socket, setSocket] = React.useState<null | Socket>(null)
     const { getAccessTokenSilently } = useAuth0()
+
+    useEffect(() => {
+        const connect = async () => {
+            const token = await getAccessTokenSilently()
+            if (!token) return
+            const newSocket = io('http://localhost:3000', {
+                auth: {
+                    token
+                }
+            })
+            setSocket(newSocket)
+        }
+        connect()
+    }, [getAccessTokenSilently])
+
+    useEffect(() => {
+        if (!socket) return
+        socket.on('msg', (data) => {
+            console.log(data)
+        })
+    }, [socket])
 
     const access = async () => {
         const token = await getAccessTokenSilently()
@@ -44,7 +67,7 @@ const PruebaAuth = () => {
         <>
             <LoginButton></LoginButton>
             <LogoutButton />
-            <Profile></Profile>
+            {/* <Profile></Profile> */}
             <button onClick={peticion}>hacer peticion</button>
             <div onClick={access}>acceder al token</div>
             <form onSubmit={handleSubmit}>
