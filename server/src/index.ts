@@ -7,34 +7,46 @@ import { ManagementClient } from 'auth0'
 // import { Server } from 'socket.io'
 import http from 'http'
 import routerUser from './routes/users'
-import { logguer } from './middlewares/logguer'
+// import { logguer } from './middlewares/logguer'
 import { addUser } from './middlewares/addUser'
 import routerChat from './routes/chats'
 import { initDb } from './models/sequelize/config'
 import { errorHandler, unknownEndpoint } from './middlewares/handlerError'
 import routerMsg from './routes/messages'
+import { Server } from 'socket.io'
+import initSocketsHandler from './services/socketsHandler'
+import { instrument } from '@socket.io/admin-ui'
 
 const app = express()
+app.use(express.static('./node_modules/@socket.io/admin-ui/ui/dist'))
 const server = http.createServer(app)
-// const io = new Server(server, {
-//   cors: {
-//     origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-//   }
-// })
+const io = new Server(server, {
+  cors: {
+    origin: [
+      'https://admin.socket.io',
+      process.env.FRONTEND_URL || 'http://localhost:5173',
+      'https://admin.socket.io',
+      'https://admin.socket.io/#/',
+    ],
+    credentials: true,
+  },
+})
 
-// io.on('connection' , (socket) => {
-//   console.log('a user connected')
+instrument(io, {
+  auth: false,
+  mode: 'development',
+})
 
-//   socket.on('msg', (data) =>{
-//     console.log(data)
-//   })
-// })
-
+io.use((socket, next) => {
+  console.log('new connection', socket.id)
+  next()
+})
+io.on('connection', initSocketsHandler)
 const port = process.env.PORT || 8080
 
 app.use(cors())
 app.use(express.json())
-app.use(logguer)
+// app.use(logguer)
 
 export const client = new ManagementClient({
   domain: process.env.MACHINE_TO_MACHINE_DOMAIN || '',
@@ -48,26 +60,26 @@ const jwtCheck = auth({
   tokenSigningAlg: 'RS256',
 })
 
-app.get('/authorized', jwtCheck, async (req, res) => {
-  console.log(req.auth)
+// app.get('/authorized', jwtCheck, async (req, res) => {
+//   // console.log(req.auth)
 
-  try {
-    const response = await fetch(`https://${process.env.APP_DOMAIN}/userinfo`, {
-      headers: {
-        Authorization: `Bearer ${req.auth?.token}`,
-      },
-    })
+//   try {
+//     const response = await fetch(`https://${process.env.APP_DOMAIN}/userinfo`, {
+//       headers: {
+//         Authorization: `Bearer ${req.auth?.token}`,
+//       },
+//     })
 
-    if (!response.ok) {
-      throw new Error(response.statusText)
-    }
-    const data = await response.json()
-    res.send(data)
-  } catch (error) {
-    console.log(error)
-    res.sendStatus(500)
-  }
-})
+//     if (!response.ok) {
+//       throw new Error(response.statusText)
+//     }
+//     const data = await response.json()
+//     res.send(data)
+//   } catch (error) {
+//     console.log(error)
+//     res.sendStatus(500)
+//   }
+// })
 
 app.use('/user', routerUser)
 app.use('/message', jwtCheck, addUser, routerMsg)

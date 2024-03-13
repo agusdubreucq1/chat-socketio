@@ -15,7 +15,6 @@ const userController = {
     const user = await client.users.get({
       id: id,
     })
-    console.log(user)
     res.send(user)
   },
 }

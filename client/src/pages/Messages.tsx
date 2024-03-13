@@ -1,12 +1,14 @@
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useRef } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import React, { useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 // import { ChatTypeResponse } from '../vite-env';
 import { useAuth0 } from '@auth0/auth0-react';
 import { SendIcon } from '../components/common/icons/SendIcon';
 import { getChats } from '../services/chat';
-import { createMessage, getMessagesByChat, orderMessagesByDate } from '../services/message';
+import { getMessagesByChat, orderMessagesByDate } from '../services/message';
+import { useSocket } from '../globalState/socket';
+import { MessageTypeResponse } from '../vite-env';
 
 const Messages: React.FC = () => {
     const formRef = useRef<null | HTMLFormElement>(null)
@@ -26,16 +28,8 @@ const Messages: React.FC = () => {
     const members = chat?.members.filter(member => member.user_id !== user?.sub)
     const isChat = members?.length === 1
 
-    const { mutate, isPending } = useMutation({
-        mutationKey: ['createMessage', id, token],
-        mutationFn: async (message: string) => {
-            return await createMessage(message, id as string, token)
-        },
-        onSuccess: () => {
-            formRef.current?.reset()
-        }
-    })
-
+    // const [socket, setSocket] = React.useState<null | Socket>(null)
+    const socket = useSocket((state) => state.socket)
     const { data: messages } = useQuery({
         queryKey: ['messages', id, token],
         queryFn: async () => await getMessagesByChat(id as string, token),
@@ -45,13 +39,34 @@ const Messages: React.FC = () => {
         staleTime: 60 * 1000 * 5
     })
 
-
+    useEffect(() => {
+        if (socket && id && token && client) {
+            socket.on(`msg`, (newMsg) => {
+                console.log("msg de otro", newMsg)
+                client.setQueryData(['messages', id, token], (old: MessageTypeResponse[]) => {
+                    return [...old, newMsg]
+                })
+            })
+        }
+    }, [socket, client, id, token])
 
     const sendMessage = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         const formData = new FormData(event.currentTarget)
         const msg = formData.get('msg')
-        mutate(msg as string)
+        socket?.emit('msg', id , msg)
+        formRef.current?.reset()
+        const newMsg = {
+            user_id: user?.sub,
+            chat_id: id,
+            message: msg as string,
+            createdAt: new Date().toISOString(),
+            id: crypto.randomUUID()
+        }
+        client.setQueryData(['messages', id, token], (old: MessageTypeResponse[]) => {
+            return [...old, newMsg]
+        })
+        // mutate(msg as string)
     }
 
     return (
@@ -71,7 +86,7 @@ const Messages: React.FC = () => {
                         return (
                             <div key={message.id} className={`relative ${isMyMessage ? 'justify-end' : 'justify-start'} flex gap-3`}>
                                 <div
-                                    className={`flex min-w-10 text-white gap-1 p-1 pb-4 pr-2 rounded-md w-fit ${isMyMessage ? 'bg-green-700' : 'bg-slate-400'}`}>
+                                    className={`relative flex min-w-10 text-white gap-1 p-1 pb-4 pr-2 rounded-md w-fit ${isMyMessage ? 'bg-green-700' : 'bg-slate-400'}`}>
                                     <p className='text-lg'>{message.message}</p>
                                     <p className='absolute bottom-0 right-1 text-xs text-gray-300'>{message.createdAt.slice(11, 16)}</p>
                                 </div>
@@ -82,7 +97,7 @@ const Messages: React.FC = () => {
             </div>
             <form ref={formRef} onSubmit={sendMessage} className='relative items-center bottom-0 flex gap-6 w-full border-t border-black px-4 py-2'>
                 <input type="text" name="msg" placeholder='Type a message' className='w-full px-3 py-1 rounded-md bg-slate-400 focus-within:outline-none placeholder:text-gray-600'></input>
-                <button disabled={isPending} className='flex items-center justify-center p-2 w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 transition-colors disabled:bg-green-300'><SendIcon color='white'></SendIcon></button>
+                <button className='flex items-center justify-center p-2 w-10 h-10 rounded-full bg-green-500 hover:bg-green-600 transition-colors disabled:bg-green-300'><SendIcon color='white'></SendIcon></button>
             </form>
         </div>
     );

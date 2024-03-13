@@ -19,6 +19,7 @@
     "typescript": "^5.4.2"
   },
   "dependencies": {
+    "@socket.io/admin-ui": "^0.5.1",
     "@types/auth0-js": "^9.21.5",
     "@types/dotenv": "^8.2.0",
     "auth0": "^4.3.1",

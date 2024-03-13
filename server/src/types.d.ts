@@ -42,3 +42,14 @@ export interface UserType {
   last_login: string //"2024-03-09T10:39:07.922Z",
   logins_count: number //7
 }
+
+export interface UserInfo {
+  sub: strin //'google-oauth2|103341753629051677112'
+  given_name: string //'Agustin'
+  family_name: string //'DUBREUCQ'
+  nickname: string //'adubreucq395'
+  name: string //'Agustin DUBREUCQ'
+  picture: string //'https://lh3.googleusercontent.com/a/ACg8ocIzigzk4NpQnsUsjkinJeH9fQr0bp6d48yVfcd1Ms-x=s96-c'
+  locale: string //'es'
+  updated_at: string //'2024-03-13T12:28:50.263Z'
+}

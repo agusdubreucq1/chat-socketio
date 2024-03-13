@@ -1,10 +1,13 @@
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import React, { useEffect } from 'react';
 import { getChats } from '../services/chat';
 import { useAuth0 } from '@auth0/auth0-react';
 import ModalUsers from '../components/common/ModalUsers';
 import { Link, Outlet } from 'react-router-dom';
+import { useSocket } from '../globalState/socket';
+import { useOnlineUsers } from '../globalState/onlineUsers';
+import useInitSocket from '../components/hooks/useInitSocket';
 
 interface ButtonType extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children: React.ReactNode
@@ -18,11 +21,16 @@ const Chat = ({ chat }) => {
     const { user } = useAuth0()
     const members = chat?.members.filter(member => member.user_id !== user?.sub)
     const isChat = members?.length === 1
+    const onlineUsers = useOnlineUsers(state => state.onlineUsers)
+    // const isOnline = isChat && onlineUsers.some(user => user.sub === members[0].user_id)
+
 
     return (
         <Link to={`/${chat.id}`} className='relative z-10 flex items-center gap-3 p-4 rounded-md hover:bg-slate-500 transition-colors'>
-            <div className='w-9 h-9 rounded-full bg-gray-400 overflow-hidden'>
+            <div className='relative w-9 h-9 rounded-full bg-gray-400 overflow-hidden'>
                 {isChat && <img src={members[0].picture} alt={members[0].name}></img>}
+                {isChat && onlineUsers.some(user => user.sub === members[0].user_id) &&
+                    <div className='absolute top-0 right-0 w-3 h-3 bg-green-500 rounded-full'></div>}
             </div>
             <p className='text-md text-white'>
                 {isChat ? `${members[0].name}` : `${chat?.name}`}
@@ -34,16 +42,10 @@ const Chat = ({ chat }) => {
 }
 
 const Chats: React.FC = () => {
-    const { getAccessTokenSilently } = useAuth0()
-    const [token, setToken] = React.useState('')
-
-    useEffect(() => {
-        const getToken = async () => {
-            const token = await getAccessTokenSilently()
-            setToken(token)
-        }
-        getToken()
-    }, [getAccessTokenSilently])
+    const client = useQueryClient()
+    const token = client.getQueryData(['token']) as string
+    const socket = useSocket(state => state.socket)
+    const setOnlineUsers = useOnlineUsers(state => state.setOnlineUsers)
 
     const { data: chats, error, isError } = useQuery({
         queryKey: ['chats', token],
@@ -51,9 +53,20 @@ const Chats: React.FC = () => {
         // initialData: [],
         staleTime: 60 * 1000 * 5,
         retry: false,
-        enabled: token !== '',
+        enabled: token !== undefined && token !== '',
         refetchOnWindowFocus: false
     })
+    useInitSocket()
+
+    useEffect(() => {
+        if (socket !== null && setOnlineUsers) {
+            socket.on('onlineUsers', (users) => {
+                console.log('onlineUsers', users)
+                setOnlineUsers(users)
+            })
+        }
+    }, [socket, setOnlineUsers])
+
 
     const { isAuthenticated } = useAuth0()
     const [showModal, setShowModal] = React.useState(false)
@@ -64,6 +77,10 @@ const Chats: React.FC = () => {
 
     const closeModal = () => {
         setShowModal(false)
+    }
+
+    const getSocket = () => {
+        console.log(socket?.id)
     }
 
     return (
@@ -89,6 +106,7 @@ const Chats: React.FC = () => {
                         <Outlet></Outlet>
                     </div>
                 </div>
+                <button onClick={getSocket}>get socket</button>
             </section>
         </>
     );

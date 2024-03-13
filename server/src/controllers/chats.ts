@@ -5,7 +5,6 @@ import { chatCreatedSchema, groupCreatedSchema } from '../schemas/chats'
 
 const chatsController = {
   getChats: async (_req: Request, res: Response) => {
-    console.log('user', res.locals.user)
     const user = res.locals.user
     if (!user) {
       res.sendStatus(404)
@@ -24,8 +23,6 @@ const chatsController = {
   createChat: async (req: Request, res: Response) => {
     const body = await chatCreatedSchema.parseAsync(req.body)
     const { members } = body
-    console.log('ids', members)
-    console.log('user', res.locals.user)
     const user = res.locals.user
     members.push(user.sub)
     const chat = await ChatModel.createChat('chat', members)
@@ -35,8 +32,6 @@ const chatsController = {
   createGroupChat: async (req: Request, res: Response) => {
     const body = await groupCreatedSchema.parseAsync(req.body)
     const { members, name } = body
-    console.log('ids', members)
-    console.log('user', res.locals.user)
     const user = res.locals.user
     members.push(user.sub)
     const chat = await ChatModel.createChat(name, members)
