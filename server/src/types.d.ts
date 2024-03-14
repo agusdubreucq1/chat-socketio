@@ -44,7 +44,7 @@ export interface UserType {
 }
 
 export interface UserInfo {
-  sub: strin //'google-oauth2|103341753629051677112'
+  sub: string //'google-oauth2|103341753629051677112'
   given_name: string //'Agustin'
   family_name: string //'DUBREUCQ'
   nickname: string //'adubreucq395'

@@ -10,7 +10,7 @@ const chatsController = {
       res.sendStatus(404)
       return
     }
-    const chats = await ChatModel.getChatsByUser(user.sub)
+    const chats = await ChatModel.getChatsByUserWithMembers(user.sub)
     res.send(chats)
   },
 

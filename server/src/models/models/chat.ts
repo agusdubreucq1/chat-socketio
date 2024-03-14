@@ -36,6 +36,20 @@ export const ChatModel = {
     await transaccion.commit()
     return chat
   },
+  getChatsByUserWithMembers: async (userId: string) => {
+    const chats = await Chat_user.findAll({
+      attributes: ['chat_id'],
+      where: {
+        user_id: userId,
+      },
+    })
+    let response = []
+    for (const chat of chats) {
+      response.push(await ChatModel.getChatById(`${chat.chat_id}`))
+    } //todos los chats con sus members
+    return response
+  },
+
   getChatsByUser: async (userId: string) => {
     const chats_user = await Chat_user.findAll({
       attributes: ['chat_id'],
@@ -43,13 +57,7 @@ export const ChatModel = {
         user_id: userId,
       },
     })
-    const chats = chats_user.map((chat_user) => Chat.findByPk(chat_user.chat_id))
-
-    let response = []
-    for (const chat of await Promise.all(chats)) {
-      response.push(await ChatModel.getChatById(chat?.id as string))
-    } //todos los chats con sus members
-    return response
+    return chats_user
   },
   getChatById: async (id: string) => {
     const chat = await Chat.findByPk(id)

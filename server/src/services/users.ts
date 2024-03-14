@@ -15,7 +15,7 @@ export const AllmembersAreDistinct = (members: string[]) => {
 }
 
 export const ChatEqual = async (members: string[]) => {
-  const allChats = await ChatModel.getChatsByUser(members[0])
+  const allChats = await ChatModel.getChatsByUserWithMembers(members[0])
   const chatEqual = allChats.find(
     (chat) =>
       chat.members.length === members.length &&

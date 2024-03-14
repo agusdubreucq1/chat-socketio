@@ -16,8 +16,9 @@ const useInitSocket = () => {
         console.log('intentando conectarse', {
             socket, token, user, chats
         })
+
+        let newSocket: Socket | null = null
         if (socket === null && token && user?.name && chats !== undefined) {
-            let newSocket: Socket | null = null
             newSocket = io('http://localhost:8080', {
                 auth: {
                     token: token,
@@ -27,20 +28,20 @@ const useInitSocket = () => {
             })
             newSocket?.on('connect', () => {
                 console.log('connected', newSocket?.id)
-                // console.log('emitiendo room a chats:', chats)
-                // for (const chat of chats) {
-                //     console.log('room', chat.id, newSocket?.id)
-                //     newSocket?.emit('room', chat.id)
-                // }
                 setSocket(newSocket as Socket)
+            })
+            newSocket?.on('disconnect', () => {
+                console.log('disconnected', newSocket?.id)
+                setSocket(null)
             })
             // console.log('conectado', newSocket.id)
 
         }
 
         return () => {
-            console.log('desconectando', socket?.id)
-            socket?.disconnect()
+            console.log('desconectando', newSocket?.id)
+            newSocket?.disconnect()
+            setSocket(null)
         }
     }, [user, token, setSocket, chats])
 

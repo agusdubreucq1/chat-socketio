@@ -20,7 +20,7 @@ import { instrument } from '@socket.io/admin-ui'
 const app = express()
 app.use(express.static('./node_modules/@socket.io/admin-ui/ui/dist'))
 const server = http.createServer(app)
-const io = new Server(server, {
+export const io = new Server(server, {
   cors: {
     origin: [
       'https://admin.socket.io',
