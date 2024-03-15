@@ -1,12 +1,15 @@
-import React, { useEffect } from "react";
+import React from "react";
 
 import { useAuth0 } from '@auth0/auth0-react';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getUsers } from "../../services/users";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createChat } from "../../services/chat";
 import Modal from "./Modal";
 import { ChatTypeResponse } from "../../vite-env";
 import { useNavigate } from "react-router-dom";
+import useUsers from "../hooks/useUsers";
+import useToken from "../hooks/useToken";
+import ErrorMessage from "./ErrorMessage";
+import SkeletonUsers from "./SkeletonUsers";
 
 interface ModalUsersProps {
     closeModal: () => void
@@ -16,23 +19,9 @@ interface ModalUsersProps {
 const ModalUsers: React.FC<ModalUsersProps> = ({ closeModal }) => {
     const client = useQueryClient()
     const navigate = useNavigate()
-    const { data: users, error, isError } = useQuery({
-        queryKey: ['users'],
-        queryFn: getUsers,
-        refetchOnWindowFocus: false,
-        retry: false,
-        staleTime: 60 * 1000 * 5,
-    })
-
-    const { getAccessTokenSilently, user } = useAuth0()
-    const [token, setToken] = React.useState('')
-    useEffect(() => {
-        const getToken = async () => {
-            const token = await getAccessTokenSilently()
-            setToken(token)
-        }
-        getToken()
-    }, [getAccessTokenSilently])
+    const { users, isError, error, isLoading } = useUsers()
+    const { token } = useToken()
+    const { user } = useAuth0()
 
     const { mutate } = useMutation({
         mutationFn: async (body: { member: string, token: string }) => { return await createChat(body.member, body.token) },
@@ -52,7 +41,6 @@ const ModalUsers: React.FC<ModalUsersProps> = ({ closeModal }) => {
 
     const handleClick = async (e: React.MouseEvent<HTMLDivElement, MouseEvent>, member: string) => {
         e.stopPropagation()
-        const token = await getAccessTokenSilently()
         mutate({ member, token })
     }
 
@@ -60,10 +48,13 @@ const ModalUsers: React.FC<ModalUsersProps> = ({ closeModal }) => {
         <Modal onClick={closeModal}>
             <div className='flex flex-col p-6 gap-4 z-50 bg-gray-400 rounded-md'>
                 <h1 className='text-2xl'>Crear chat</h1>
-                {isError && <p>{error.message}</p>}
+                {isError &&
+                    <ErrorMessage msg={error?.message} />
+                }
                 <div className='flex flex-col'>
-                    {
-                        users?.map(userOfAll => {
+                    {isLoading
+                        ? <SkeletonUsers />
+                        : users?.map(userOfAll => {
                             if (userOfAll.user_id === user?.sub) return; null;
                             return (
                                 <div key={userOfAll.user_id} onClick={(e) => handleClick(e, userOfAll.user_id)} className='flex items-center flex-row gap-3 p-2 rounded-md hover:bg-slate-500 transition-colors'>
