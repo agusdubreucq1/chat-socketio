@@ -1,92 +1,59 @@
-
-import { useQuery, useQueryClient } from '@tanstack/react-query';
-import React, { useEffect, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useParams } from 'react-router-dom';
-// import { ChatTypeResponse } from '../vite-env';
 import { useAuth0 } from '@auth0/auth0-react';
 import { SendIcon } from '../components/common/icons/SendIcon';
-import { getChats } from '../services/chat';
-import { getMessagesByChat, orderMessagesByDate } from '../services/message';
+import { orderMessagesByDate } from '../services/message';
 import { useSocket } from '../globalState/socket';
-import { MessageTypeResponse } from '../vite-env';
 import { useOnlineUsers } from '../globalState/onlineUsers';
+import useChats from '../components/hooks/useChats';
+import useMessageByChatId from '../components/hooks/useMessageByChatId';
 
 const Messages: React.FC = () => {
     const formRef = useRef<null | HTMLFormElement>(null)
+    const socket = useSocket((state) => state.socket)
     const { id } = useParams()
     const { user } = useAuth0()
-    const client = useQueryClient()
-    const token = client.getQueryData(['token']) as string
-    const { data: chats } = useQuery({
-        queryKey: ['chats', token],
-        queryFn: async () => await getChats(token),
-        staleTime: 60 * 1000 * 5,
-        retry: false,
-        enabled: !!token && token !== '',
-        refetchOnWindowFocus: false
-    })
+    const { chats } = useChats()
+    const { messages } = useMessageByChatId(id as string)
+
     const chat = chats?.find(chat => chat.id === id)
-    const members = chat?.members.filter(member => member.user_id !== user?.sub)
-    const isChat = members?.length === 1
+    const member = chat?.members.filter(member => member.user_id !== user?.sub)[0]
     const onlineUsers = useOnlineUsers(state => state.onlineUsers)
-    const isOnline = isChat && onlineUsers.some(user => user.sub === members[0].user_id)
-
-    // const [socket, setSocket] = React.useState<null | Socket>(null)
-    const socket = useSocket((state) => state.socket)
-    const { data: messages } = useQuery({
-        queryKey: ['messages', id, token],
-        queryFn: async () => await getMessagesByChat(id as string, token),
-        enabled: !!id && !!token,
-        refetchOnWindowFocus: false,
-        retry: false,
-        staleTime: 60 * 1000 * 5
-    })
-
-    useEffect(() => {
-        if (socket && id && token && client) {
-            socket.on('msg', (newMsg) => {
-                console.log("msg de otro", newMsg)
-                client.setQueryData(['messages', id, token], (old: MessageTypeResponse[]) => {
-                    return [...old, newMsg]
-                })
-            })
-        }
-    }, [socket, client, id, token])
+    const isOnline = onlineUsers.some(user => user.sub === (member?.user_id))
 
     const sendMessage = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault()
         const formData = new FormData(event.currentTarget)
         const msg = formData.get('msg')
-        if (socket === null || socket?.connected === false) return
+        if (socket === null || socket?.connected === false) {
+            console.log('no socket')
+            return
+        }
         socket?.emit('msg', `${id}`, msg)
         formRef.current?.reset()
-        // const newMsg = {
-        //     user_id: user?.sub,
-        //     chat_id: id,
-        //     message: msg as string,
-        //     createdAt: new Date().toISOString(),
-        //     id: crypto.randomUUID()
-        // }
+    }
 
-        // client.setQueryData(['messages', id, token], (old: MessageTypeResponse[]) => {
-        //     return [...old, newMsg]
-        // })
+    if (!member || !id) {
+        return (
+            <></>
+        )
     }
 
     return (
         <div className='relative flex float-left flex-col w-full h-full pb-14'>
             <header className='sticky top-0 flex w-full items-center justify-center gap-3 px-6 pt-2 pb-4 border-b border-black bg-black z-30'>
                 <div className='w-10 h-10 rounded-full overflow-hidden border'>
-                    {isChat && <img src={members[0].picture} alt={members[0].name}></img>}
+                    {<img src={member.picture} alt={member.name}></img>}
                 </div>
                 <h1 className='text-white text-xl'>
-                    {isChat ? `${members[0].name}` : `${chat?.name}`}
+                    {`${member.name}`}
                 </h1>
                 {isOnline &&
                     <div className='absolute bottom-1 flex items-center gap-1'>
                         <div className='w-3 h-3 bg-green-500 rounded-full'></div>
                         <p className='text-xs text-white'>En linea</p>
-                    </div>}
+                    </div>
+                }
             </header>
             <div className='relative flex flex-col w-full h-full overflow-auto gap-1 p-4'>
                 {
