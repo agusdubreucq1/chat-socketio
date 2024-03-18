@@ -3,6 +3,7 @@ import { AllMembersAreUsers, ChatEqual } from '../../services/users'
 import { Chat } from '../sequelize/chat'
 import { Chat_user } from '../sequelize/chat_user'
 import { db } from '../sequelize/conection'
+import { Message } from '../sequelize/message'
 
 export const ChatModel = {
   createChat: async (name: string, members: string[]) => {
@@ -12,9 +13,7 @@ export const ChatModel = {
     const chatEqual = await ChatEqual(members)
     if (chatEqual) {
       return chatEqual
-      // throw new Error('Chat already exist') //TODO return chat
     }
-    //TODO verify not create before
     const transaccion = await db.transaction({ autocommit: false })
     const chat = await Chat.create(
       {
@@ -34,7 +33,8 @@ export const ChatModel = {
       )
     }
     await transaccion.commit()
-    return chat
+    const chatCreated = await ChatModel.getChatById(chat.id)
+    return chatCreated
   },
   getChatsByUserWithMembers: async (userId: string) => {
     const chats = await Chat_user.findAll({
@@ -45,7 +45,8 @@ export const ChatModel = {
     })
     let response = []
     for (const chat of chats) {
-      response.push(await ChatModel.getChatById(`${chat.chat_id}`))
+      const chatResponse = await ChatModel.getChatById(`${chat.chat_id}`)
+      response.push(chatResponse)
     } //todos los chats con sus members
     return response
   },
@@ -60,7 +61,9 @@ export const ChatModel = {
     return chats_user
   },
   getChatById: async (id: string) => {
-    const chat = await Chat.findByPk(id)
+    const chat = await Chat.findByPk(id, {
+      include: [Message]
+    })
     const chats_user = await Chat_user.findAll({
       attributes: ['user_id'],
       where: {
