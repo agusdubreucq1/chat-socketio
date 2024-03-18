@@ -1,4 +1,5 @@
 import { Model } from 'sequelize'
+import { Socket } from 'socket.io'
 
 export interface ChatModel extends Model {
   id: string
@@ -52,4 +53,8 @@ export interface UserInfo {
   picture: string //'https://lh3.googleusercontent.com/a/ACg8ocIzigzk4NpQnsUsjkinJeH9fQr0bp6d48yVfcd1Ms-x=s96-c'
   locale: string //'es'
   updated_at: string //'2024-03-13T12:28:50.263Z'
+}
+
+export interface UserOnline extends UserInfo {
+  socket: Socket
 }

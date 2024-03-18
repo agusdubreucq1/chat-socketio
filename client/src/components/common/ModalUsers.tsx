@@ -10,6 +10,7 @@ import useUsers from "../hooks/useUsers";
 import useToken from "../hooks/useToken";
 import ErrorMessage from "./ErrorMessage";
 import SkeletonUsers from "./SkeletonUsers";
+import { useSocket } from "../../globalState/socket";
 
 interface ModalUsersProps {
     closeModal: () => void
@@ -19,6 +20,7 @@ interface ModalUsersProps {
 const ModalUsers: React.FC<ModalUsersProps> = ({ closeModal }) => {
     const client = useQueryClient()
     const navigate = useNavigate()
+    const socket = useSocket(state => state.socket)
     const { users, isError, error, isLoading } = useUsers()
     const { token } = useToken()
     const { user } = useAuth0()
@@ -26,11 +28,14 @@ const ModalUsers: React.FC<ModalUsersProps> = ({ closeModal }) => {
     const { mutate } = useMutation({
         mutationFn: async (body: { member: string, token: string }) => { return await createChat(body.member, body.token) },
         mutationKey: ['createChat', token],
-        onSuccess: (data: ChatTypeResponse) => {
-            client.setQueryData(['chats', token], (oldData: ChatTypeResponse[]) => {
+        onSuccess: async (data: ChatTypeResponse) => {
+            console.log('new chat', data.id)
+            socket?.emit('room', data.id)
+            await client.setQueryData(['chats', token], (oldData: ChatTypeResponse[]) => {
                 if (oldData.some(chat => chat.id === data.id)) return oldData
                 return [...oldData, data]
             })
+            //TODO: aegregarse al nuevo room para recibir los mensajes
             navigate(`/${data.id}`)
             closeModal()
         },
@@ -55,7 +60,7 @@ const ModalUsers: React.FC<ModalUsersProps> = ({ closeModal }) => {
                     {isLoading
                         ? <SkeletonUsers />
                         : users?.map(userOfAll => {
-                            if (userOfAll.user_id === user?.sub) return; null;
+                            if (userOfAll.user_id === user?.sub) return null;
                             return (
                                 <div key={userOfAll.user_id} onClick={(e) => handleClick(e, userOfAll.user_id)} className='flex items-center flex-row gap-3 p-2 rounded-md hover:bg-slate-500 transition-colors'>
                                     <div className='w-9 h-9 overflow-hidden rounded-full bg-gray-400'>

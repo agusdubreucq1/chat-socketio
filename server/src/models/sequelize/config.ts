@@ -5,7 +5,7 @@ import { Message } from "./message"
 
 Chat_user.belongsTo(Chat, {foreignKey: 'chat_id'})
 Chat.belongsToMany(Chat_user, {through: 'chat_id'})
-Message
+Chat.belongsTo(Message, {foreignKey: 'last_message_id', targetKey: 'id'})
 
 export const initDb = async () =>{
     try{

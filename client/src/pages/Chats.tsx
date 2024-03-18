@@ -6,12 +6,9 @@ import { useSocket } from '../globalState/socket';
 import { useOnlineUsers } from '../globalState/onlineUsers';
 import useInitSocket from '../components/hooks/useInitSocket';
 import useReceive from '../components/hooks/useReceive';
-import SkeletonChats from '../components/common/SkeletonChats';
-import useChats from '../components/hooks/useChats';
 import useToken from '../components/hooks/useToken';
-import CardChat from '../components/common/CardChat';
 import { PlusIcon } from '../components/common/icons/PlusIcon';
-import ErrorMessage from '../components/common/ErrorMessage';
+import ListOfChats from '../components/common/ListOfChats';
 
 
 interface ButtonType extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -25,8 +22,7 @@ const Button: React.FC<ButtonType> = ({ children, ...props }) => {
 const Chats: React.FC = () => {
     const socket = useSocket(state => state.socket)
     const setOnlineUsers = useOnlineUsers(state => state.setOnlineUsers)
-    const {token} = useToken()
-    const { chats, isError: isChatError, isLoading: isChatLoading } = useChats()
+    const { token } = useToken()
 
     useInitSocket()
     useReceive()
@@ -76,17 +72,7 @@ const Chats: React.FC = () => {
                                 <PlusIcon className='w-6 h-6'></PlusIcon>
                             </Button>
                         </div>
-                        <div>
-                            {isChatError
-                                ? <ErrorMessage msg='No se encontraron chats'></ErrorMessage>
-                                : chats?.map((chat) => (
-                                    <CardChat key={chat.id} chat={chat}></CardChat>
-                                ))
-                            }{
-                                isChatLoading &&
-                                <SkeletonChats />
-                            }
-                        </div>
+                        <ListOfChats />
                     </div>
                     <div className='flex justify-center w-full h-full overflow-hidden'>
                         <Outlet></Outlet>

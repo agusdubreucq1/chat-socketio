@@ -13,21 +13,20 @@ import routerChat from './routes/chats'
 import { initDb } from './models/sequelize/config'
 import { errorHandler, unknownEndpoint } from './middlewares/handlerError'
 import routerMsg from './routes/messages'
-import { Server } from 'socket.io'
-import initSocketsHandler from './services/socketsHandler'
+import { Server, Socket } from 'socket.io'
+// import initSocketsHandler from './services/socketsHandler'
 import { instrument } from '@socket.io/admin-ui'
+import { UserInfo, UserOnline } from './types'
+import { handshake } from './services/sockets/handshake'
+import { manageSocket } from './services/sockets/manage'
+import { addToOnlineUsers } from './services/sockets/onDisconnect'
 
 const app = express()
 app.use(express.static('./node_modules/@socket.io/admin-ui/ui/dist'))
 const server = http.createServer(app)
 export const io = new Server(server, {
   cors: {
-    origin: [
-      'https://admin.socket.io',
-      process.env.FRONTEND_URL || 'http://localhost:5173',
-      'https://admin.socket.io',
-      'https://admin.socket.io/#/',
-    ],
+    origin: ['https://admin.socket.io', process.env.FRONTEND_URL || 'http://localhost:5173'],
     credentials: true,
   },
 })
@@ -41,7 +40,33 @@ io.use((socket, next) => {
   console.log('new connection', socket.id)
   next()
 })
-io.on('connection', initSocketsHandler)
+let onlineUsers: UserOnline[] = []
+
+const setOnlineUsers = (users: UserOnline[]) => {
+  console.log(
+    'setOnlineUsers',
+    users.map((u) => u.name),
+  )
+  onlineUsers = users
+}
+
+const getOnlineUsers = () => onlineUsers
+
+const onConnection = async (socket: Socket) => {
+  let user: UserInfo
+  try {
+    user = await handshake(socket)
+  } catch (e) {
+    console.log('handshake error')
+    socket.disconnect()
+    return
+  }
+
+  addToOnlineUsers({ user, socket,  io, getOnlineUsers, setOnlineUsers })
+  manageSocket(io, socket, user, setOnlineUsers, getOnlineUsers)
+}
+
+io.on('connection', onConnection)
 const port = process.env.PORT || 8080
 
 app.use(cors())
@@ -59,27 +84,6 @@ const jwtCheck = auth({
   issuerBaseURL: 'https://domainpablo.us.auth0.com/',
   tokenSigningAlg: 'RS256',
 })
-
-// app.get('/authorized', jwtCheck, async (req, res) => {
-//   // console.log(req.auth)
-
-//   try {
-//     const response = await fetch(`https://${process.env.APP_DOMAIN}/userinfo`, {
-//       headers: {
-//         Authorization: `Bearer ${req.auth?.token}`,
-//       },
-//     })
-
-//     if (!response.ok) {
-//       throw new Error(response.statusText)
-//     }
-//     const data = await response.json()
-//     res.send(data)
-//   } catch (error) {
-//     console.log(error)
-//     res.sendStatus(500)
-//   }
-// })
 
 app.use('/user', routerUser)
 app.use('/message', jwtCheck, addUser, routerMsg)

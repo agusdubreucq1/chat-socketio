@@ -29,7 +29,9 @@ export interface ChatTypeResponse {
   name: string //'chat'
   createdAt: string //'2024-03-09T18:18:12.000Z'
   updatedAt: string //'2024-03-09T18:18:12.000Z'
-  members: UserType[]
+  members: UserType[],
+  last_message_id: string | null //"db8510b9-b6a2-4eee-9878-7b6542dbb782",
+  message: MessageTypeResponse | null
 }
 
 export interface MessageTypeResponse {
