@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import ModalUsers from '../components/common/ModalUsers';
 import { Outlet } from 'react-router-dom';
-import { useSocket } from '../globalState/socket';
-import { useOnlineUsers } from '../globalState/onlineUsers';
-import useInitSocket from '../components/hooks/useInitSocket';
-import useReceive from '../components/hooks/useReceive';
+// import { useSocket } from '../globalState/socket';
+// import { useOnlineUsers } from '../globalState/onlineUsers';
+// import useInitSocket from '../components/hooks/useInitSocket';
+// import useReceive from '../components/hooks/useReceive';
 import useToken from '../components/hooks/useToken';
 import { PlusIcon } from '../components/common/icons/PlusIcon';
 import ListOfChats from '../components/common/ListOfChats';
@@ -20,27 +20,7 @@ const Button: React.FC<ButtonType> = ({ children, ...props }) => {
 }
 
 const Chats: React.FC = () => {
-    const socket = useSocket(state => state.socket)
-    const setOnlineUsers = useOnlineUsers(state => state.setOnlineUsers)
     const { token } = useToken()
-
-    useInitSocket()
-    useReceive()
-
-    useEffect(() => {
-        if (socket !== null && setOnlineUsers) {
-            socket.on('onlineUsers', (users) => {
-                console.log('onlineUsers', users)
-                setOnlineUsers(users)
-            })
-        }
-
-        return () => {
-            socket?.off('onlineUsers')
-        }
-    }, [socket, setOnlineUsers])
-
-
     const { isAuthenticated } = useAuth0()
     const [showModal, setShowModal] = React.useState(false)
 

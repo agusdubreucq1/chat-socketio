@@ -56,5 +56,5 @@ export interface UserInfo {
 }
 
 export interface UserOnline extends UserInfo {
-  socket: Socket
+  socketId: string
 }

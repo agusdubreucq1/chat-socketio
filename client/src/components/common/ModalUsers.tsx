@@ -30,7 +30,8 @@ const ModalUsers: React.FC<ModalUsersProps> = ({ closeModal }) => {
         mutationKey: ['createChat', token],
         onSuccess: async (data: ChatTypeResponse) => {
             console.log('new chat', data.id)
-            socket?.emit('room', data.id)
+            const member = data.members.filter(member => member.user_id !== user?.sub)[0]
+            socket?.emit('room', data.id, member.user_id)
             await client.setQueryData(['chats', token], (oldData: ChatTypeResponse[]) => {
                 if (oldData.some(chat => chat.id === data.id)) return oldData
                 return [...oldData, data]

@@ -8,11 +8,10 @@ import { useUnreadMessages } from '../../globalState/unreadMessages';
 dayjs.extend(relativeTime)
 
 const CardChat = ({ chat }: { chat: ChatTypeResponse }) => {
-    console.log(chat)
     const { user } = useAuth0()
     const members = chat?.members?.filter(member => member.user_id !== user?.sub)
     const lastMessage = chat.message
-    const unreadMessages = useUnreadMessages((state) => state.unreadMessages).filter((unreadMessage) => unreadMessage.chat_id === chat.id)
+    const unreadMessages = useUnreadMessages((state) => state.unreadMessages).filter((unreadMessage) => unreadMessage.chat_id === chat.id && unreadMessage.user_id !== user?.sub)
     const thereIsUnreadMessage = unreadMessages.length > 0
 
     return (

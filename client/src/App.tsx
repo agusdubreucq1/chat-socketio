@@ -7,6 +7,11 @@ import Profile from './pages/Profile'
 import Messages from './pages/Messages'
 import { useAuth0 } from '@auth0/auth0-react'
 import { useQuery } from '@tanstack/react-query'
+import useInitSocket from './components/hooks/useInitSocket'
+import useReceive from './components/hooks/useReceive'
+import { useEffect } from 'react'
+import { useSocket } from './globalState/socket'
+import { useOnlineUsers } from './globalState/onlineUsers'
 
 
 function App() {
@@ -16,6 +21,25 @@ function App() {
     queryFn: async () => await getAccessTokenSilently(),
     enabled: isAuthenticated
   })
+
+  const socket = useSocket(state => state.socket)
+  const setOnlineUsers = useOnlineUsers(state => state.setOnlineUsers)
+
+  useInitSocket()
+  useReceive()
+
+  useEffect(() => {
+      if (socket !== null && setOnlineUsers) {
+          socket.on('onlineUsers', (users) => {
+              console.log('onlineUsers', users)
+              setOnlineUsers(users)
+          })
+      }
+
+      // return () => {
+      //     socket?.off('onlineUsers')
+      // }
+  }, [socket, setOnlineUsers])
 
   return (
     <>

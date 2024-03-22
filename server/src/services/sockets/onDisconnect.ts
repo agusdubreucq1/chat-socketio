@@ -1,19 +1,19 @@
 import { Server, Socket } from 'socket.io'
-import { UserInfo} from '../../types'
+import { UserInfo, UserOnline} from '../../types'
 
 interface Params {
   user: UserInfo
   socket: Socket
   io: Server
-  getOnlineUsers: () => UserInfo[]
-  setOnlineUsers: (users: UserInfo[]) => void
+  getOnlineUsers: () => UserOnline[]
+  setOnlineUsers: (users: UserOnline[]) => void
 }
 
 export const addToOnlineUsers = ({ user, io, socket, getOnlineUsers, setOnlineUsers }: Params) => {
   const onlineUsers = getOnlineUsers()
   console.log(socket.id)
   if (!onlineUsers.find((u) => u.sub === user.sub)) {
-    const newUser = user//{ ...user, socket}
+    const newUser = { ...user, socketId: socket.id }
     const newOnlineUsers = [...onlineUsers, newUser]
     setOnlineUsers(newOnlineUsers)
     console.log('new user online', user.name)

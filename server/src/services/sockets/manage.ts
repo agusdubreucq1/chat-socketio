@@ -27,13 +27,18 @@ export const manageSocket = (
     socket.join(idChat)
     const userMember = getOnlineUsers().find((u) => u.sub === idMember)
     if (userMember) {
-      userMember.socket.join(idChat)
-      userMember.socket.emit('newChat')
+      io.to(userMember.socketId).emit('newChat', idChat)
     }
 
+  }
+
+  const onJoin = (id: string) => {
+    console.log(`user: ${user.name} se unio al room: ${id}`)
+    socket.join(id)
   }
 
   socket.on('msg', onMessage)
   socket.on('disconnect', onDisconnect)
   socket.on('room', onRoom)
+  socket.on('join', onJoin)
 }

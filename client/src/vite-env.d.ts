@@ -41,4 +41,5 @@ export interface MessageTypeResponse {
   message: string//'hola como andas'
   createdAt: string//'2024-03-12T21:52:03.000Z'
   updatedAt: string//'2024-03-12T21:52:03.000Z'
+  read: boolean
 }

@@ -1,4 +1,6 @@
+import { Op } from 'sequelize'
 import { Chat } from '../sequelize/chat'
+import { Chat_user } from '../sequelize/chat_user'
 import { db } from '../sequelize/conection'
 import { Message } from '../sequelize/message'
 
@@ -37,5 +39,42 @@ export const MessageModel = {
     )
     await transaction.commit()
     return messageCreated
+  },
+  readMessagesByChat: async (chat_id: string, user_id: string) => {
+    await Message.update(
+      {
+        read: true,
+      },
+      {
+        where: {
+          chat_id: chat_id,
+          read: false,
+          user_id: {
+            [Op.ne]: user_id,
+          },
+        },
+      },
+    )
+  },
+  getUnreadMessagesByUser: async (user_id: string) => {
+    const chats = await Chat_user.findAll({
+      where: {
+        user_id: user_id,
+      },
+    })
+    const allMessages = []
+    for (const chat of chats) {
+      const messages = await Message.findAll({
+        where: {
+          chat_id: chat.chat_id,
+          read: false,
+          user_id: {
+            [Op.ne]: user_id,
+          }
+        },
+      })
+      allMessages.push(messages)
+    }
+    return allMessages
   },
 }

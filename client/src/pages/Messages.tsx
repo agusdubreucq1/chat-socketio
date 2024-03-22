@@ -7,10 +7,11 @@ import { useSocket } from '../globalState/socket';
 import { useOnlineUsers } from '../globalState/onlineUsers';
 import useChats from '../components/hooks/useChats';
 import useMessageByChatId from '../components/hooks/useMessageByChatId';
-import { useUnreadMessages } from '../globalState/unreadMessages';
+// import { useUnreadMessages } from '../globalState/unreadMessages';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs from 'dayjs';
 import { formatDateMessage } from '../services/formatDateMessage';
+import useReadAllMessages from '../components/hooks/useReadAllMessages';
 dayjs.extend(relativeTime)
 
 const Messages: React.FC = () => {
@@ -21,12 +22,13 @@ const Messages: React.FC = () => {
     const { user } = useAuth0()
     const { chats } = useChats()
     const { messages } = useMessageByChatId(id as string)
-    const readAllByChat = useUnreadMessages(state => state.readAllByChat)
+    // const readAllByChat = useUnreadMessages(state => state.readAllByChat)
+
+    useReadAllMessages(id as string)
 
     useEffect(() => {
         scrollToBottom()
-        readAllByChat(id as string)
-    }, [messages, id, readAllByChat])
+    }, [messages, id])
 
     const chat = chats?.find(chat => chat.id === id)
     const member = chat?.members.filter(member => member.user_id !== user?.sub)[0]
@@ -37,6 +39,7 @@ const Messages: React.FC = () => {
         event.preventDefault()
         const formData = new FormData(event.currentTarget)
         const msg = formData.get('msg')
+        if(msg === '') return
         if (socket === null || socket?.connected === false) {
             console.log('no socket')
             return
@@ -47,11 +50,9 @@ const Messages: React.FC = () => {
 
     const scrollToBottom = () => {
         if (msgRef.current) {
-            console.log('scroll')
             msgRef.current.scrollTop = msgRef.current.scrollHeight
             return
         }
-        console.log('not scroll')
     }
 
     if (!member || !id) {
@@ -84,7 +85,7 @@ const Messages: React.FC = () => {
                         const newDay = message.createdAt.slice(0, 10) !== lastMessage?.createdAt.slice(0, 10)
                         return (
                         <>
-                            {newDay && <div className='w-full text-center text-gray-400'>{formatDateMessage(message.createdAt)}</div>}
+                            {newDay && <div key={`${message.id} - fecha`} className='w-full text-center text-gray-400'>{formatDateMessage(message.createdAt)}</div>}
                             <div key={message.id} className={`relative ${isMyMessage ? 'justify-end' : 'justify-start'} flex gap-3`}>
                                 <div
                                     className={`relative flex min-w-10 text-white gap-1 p-1 pb-4 pr-2 rounded-md w-fit ${isMyMessage ? 'bg-green-700' : 'bg-slate-400'}`}>

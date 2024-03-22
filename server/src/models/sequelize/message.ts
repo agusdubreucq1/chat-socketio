@@ -18,4 +18,8 @@ export const Message = db.define<MessageModel>("messages", {
     message: {
         type: DataTypes.STRING,
     },
+    read: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
 });

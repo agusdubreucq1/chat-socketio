@@ -33,15 +33,20 @@ const useInitSocket = () => {
                 console.log('disconnected', newSocket?.id)
                 setSocket(null)
             })
-            // console.log('conectado', newSocket.id)
+            newSocket?.on('newChat', (idChat: string) => {
+                newSocket?.emit('join', idChat)
+                client.invalidateQueries({
+                    queryKey: ['chats', token],
+                })
+            })
 
         }
 
-        return () => {
-            console.log('desconectando', newSocket?.id)
-            newSocket?.disconnect()
-            setSocket(null)
-        }
+        // return () => {
+        //     console.log('desconectando', newSocket?.id)
+        //     newSocket?.disconnect()
+        //     setSocket(null)
+        // }
     }, [user, token, setSocket])
 
 };
