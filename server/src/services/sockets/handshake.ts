@@ -20,14 +20,14 @@ export const handshake = async (socket: Socket) => {
     console.log('no user')
     throw new Error('no se encontro el user')
   }
-  console.log('handshake ok', user.name)
+  // console.log('handshake ok', user.name)
 
   ChatModel.getChatsByUser(user.sub)
     .then((chats) => {
       for (const chat of chats) {
         socket.join(chat.chat_id)
       }
-      console.log(`user: ${user.name} se unio a estos rooms: `, socket.rooms)
+      // console.log(`user: ${user.name} se unio a estos rooms: `, socket.rooms)
     })
     .catch((e) => {
       console.log('error al unir el socket a los chats', e)

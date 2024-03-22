@@ -16,6 +16,7 @@ const messageController = {
     res.send(messages)
   },
   getUnreadMessages: async (_req: Request, res: Response) => {
+    console.log('reading unread messages')
     const id = res.locals.user.sub
     const messages = await MessageModel.getUnreadMessagesByUser(id)
     res.send(messages)

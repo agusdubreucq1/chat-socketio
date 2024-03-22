@@ -10,10 +10,10 @@ const useReceive = () => {
     const socket = useSocket((state) => state.socket);
     const client = useQueryClient();
     const token = client.getQueryData(['token']) as string
-    const [addUnreadMessage, InitUnreadMessages] = useUnreadMessages(state => [state.addUnreadMessage, state.InitUnreadMessages])
+    const addUnreadMessage = useUnreadMessages(state => state.addUnreadMessage)
 
     useEffect(() => {
-        if (socket && token && client) {
+        if (socket && token && client && user?.sub) {
             // InitUnreadMessages()
             socket.on('msg', (newMsg: MessageTypeResponse) => {
                 console.log("msg de otro", newMsg)
@@ -38,7 +38,7 @@ const useReceive = () => {
                 }
             })
         }//TODO: receive all msg in a community global state 
-    }, [socket, client, token, addUnreadMessage, InitUnreadMessages])
+    }, [socket, client, token, addUnreadMessage, user])
 
 };
 
