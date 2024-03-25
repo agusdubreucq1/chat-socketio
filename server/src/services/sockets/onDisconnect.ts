@@ -11,14 +11,14 @@ interface Params {
 
 export const addToOnlineUsers = ({ user, io, socket, getOnlineUsers, setOnlineUsers }: Params) => {
   const onlineUsers = getOnlineUsers()
-  console.log(socket.id)
+  // console.log(socket.id)
   if (!onlineUsers.find((u) => u.sub === user.sub)) {
     const newUser = { ...user, socketId: socket.id }
     const newOnlineUsers = [...onlineUsers, newUser]
     setOnlineUsers(newOnlineUsers)
-    console.log('new user online', user.name)
+    // console.log('new user online', user.name)
     io.emit('onlineUsers', newOnlineUsers)
   } else {
-    console.log('user already online', user.name)
+    // console.log('user already online', user.name)
   }
 }

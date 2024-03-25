@@ -10,7 +10,7 @@ export const manageSocket = (
   getOnlineUsers: () => UserOnline[]
 ) => {
   const onMessage = async (chatId: string, msg: string) => {
-    console.log(`el user: ${user.name} envio el msg: ${msg} al chat: ${chatId}`)
+    // console.log(`el user: ${user.name} envio el msg: ${msg} al chat: ${chatId}`)
     const newMessage = await MessageModel.createMessage(chatId, user.sub, msg)
     io.to(chatId).emit('msg', newMessage)
   }

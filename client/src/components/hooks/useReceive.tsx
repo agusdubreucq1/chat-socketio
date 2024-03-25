@@ -10,17 +10,23 @@ const useReceive = () => {
     const socket = useSocket((state) => state.socket);
     const client = useQueryClient();
     const token = client.getQueryData(['token']) as string
-    const [addUnreadMessage, InitUnreadMessages] = useUnreadMessages(state => [state.addUnreadMessage, state.InitUnreadMessages])
+    const addUnreadMessage = useUnreadMessages(state => state.addUnreadMessage)
 
     useEffect(() => {
-        if (socket && token && client) {
+        if (socket && token && client && user?.sub) {
             // InitUnreadMessages()
-            socket.on('msg', (newMsg: MessageTypeResponse) => {
+            socket.on('msg', async (newMsg: MessageTypeResponse) => {
                 console.log("msg de otro", newMsg)
-                client.setQueryData(['messages', newMsg.chat_id, token], (old: MessageTypeResponse[]) => {
-                    if (!old) return [newMsg]
+                await client.setQueryData(['messages', newMsg.chat_id, token], (old: MessageTypeResponse[]) => {
+                    if (!old || !old.length) {
+                        console.log('primera vez que se setean los mensajes')
+                        client.invalidateQueries({ queryKey: ['messages', newMsg.chat_id, token] })
+                        return [newMsg]
+                    }
                     return [...old, newMsg]
                 })
+                client.invalidateQueries({ queryKey: ['messages', newMsg.chat_id, token] })
+
                 client.setQueryData(['chats', token], (old: ChatTypeResponse[]) => {
                     return old.map(chat => {
                         if (chat.id === newMsg.chat_id) {
@@ -38,7 +44,7 @@ const useReceive = () => {
                 }
             })
         }//TODO: receive all msg in a community global state 
-    }, [socket, client, token, addUnreadMessage, InitUnreadMessages])
+    }, [socket, client, token, addUnreadMessage, user])
 
 };
 

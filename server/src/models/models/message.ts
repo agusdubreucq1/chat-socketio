@@ -57,6 +57,7 @@ export const MessageModel = {
     )
   },
   getUnreadMessagesByUser: async (user_id: string) => {
+    console.log('user_id', user_id)
     const chats = await Chat_user.findAll({
       where: {
         user_id: user_id,
@@ -73,8 +74,9 @@ export const MessageModel = {
           }
         },
       })
+      console.log(`messages de chat ${chat.chat_id}`, messages)
       allMessages.push(messages)
     }
-    return allMessages
+    return allMessages.flat()
   },
 }

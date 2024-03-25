@@ -9,6 +9,7 @@ import { Outlet } from 'react-router-dom';
 import useToken from '../components/hooks/useToken';
 import { PlusIcon } from '../components/common/icons/PlusIcon';
 import ListOfChats from '../components/common/ListOfChats';
+import useInitUnreadMessages from '../components/hooks/useInitUnreadMessages';
 
 
 interface ButtonType extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -23,6 +24,8 @@ const Chats: React.FC = () => {
     const { token } = useToken()
     const { isAuthenticated } = useAuth0()
     const [showModal, setShowModal] = React.useState(false)
+
+    useInitUnreadMessages()
 
     const openModal = () => {
         setShowModal(true)

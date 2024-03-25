@@ -36,17 +36,9 @@ instrument(io, {
   mode: 'development',
 })
 
-io.use((socket, next) => {
-  console.log('new connection', socket.id)
-  next()
-})
 let onlineUsers: UserOnline[] = []
 
 const setOnlineUsers = (users: UserOnline[]) => {
-  console.log(
-    'setOnlineUsers',
-    users.map((u) => u.name),
-  )
   onlineUsers = users
 }
 

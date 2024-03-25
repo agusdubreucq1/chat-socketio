@@ -8,12 +8,15 @@ const useInitUnreadMessages = () => {
     const { token } = useToken()
 
     useEffect(() => {
-        if (!token) return
-        const setMessages = async () => {
-            const unreadMessages = await getUnreadMessages(token)
-            setUnreadMessages(unreadMessages)
+        if (token && !!setUnreadMessages) {
+            console.log('ejecutando hook useInitUnreadMessages')
+            const setMessages = async () => {
+                const unreadMessages = await getUnreadMessages(token)
+                setUnreadMessages(unreadMessages)
+            }
+            setMessages()
         }
-        setMessages()
+
     }, [token, setUnreadMessages]);
 };
 
