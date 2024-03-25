@@ -21,7 +21,7 @@ const Messages: React.FC = () => {
     const { id } = useParams()
     const { user } = useAuth0()
     const { chats } = useChats()
-    const { messages } = useMessageByChatId(id as string)
+    const { messages, isLoading } = useMessageByChatId(id as string)
     // const readAllByChat = useUnreadMessages(state => state.readAllByChat)
 
     useReadAllMessages(id as string)
@@ -39,7 +39,7 @@ const Messages: React.FC = () => {
         event.preventDefault()
         const formData = new FormData(event.currentTarget)
         const msg = formData.get('msg')
-        if(msg === '') return
+        if (msg === '') return
         if (socket === null || socket?.connected === false) {
             console.log('no socket')
             return
@@ -78,22 +78,23 @@ const Messages: React.FC = () => {
                 }
             </header>
             <div ref={msgRef} className='relative bg-scroll flex flex-col w-full h-full overflow-auto gap-1 p-4'>
+                {isLoading && <p>Loading...</p>}
                 {
                     orderMessagesByDate(messages ?? []).map((message, index) => {
                         const isMyMessage = message.user_id === user?.sub
                         const lastMessage = orderMessagesByDate(messages ?? [])[index - 1]
                         const newDay = message.createdAt.slice(0, 10) !== lastMessage?.createdAt.slice(0, 10)
                         return (
-                        <>
-                            {newDay && <div key={`${message.id} - fecha`} className='w-full text-center text-gray-400'>{formatDateMessage(message.createdAt)}</div>}
-                            <div key={message.id} className={`relative ${isMyMessage ? 'justify-end' : 'justify-start'} flex gap-3`}>
-                                <div
-                                    className={`relative flex min-w-10 text-white gap-1 p-1 pb-4 pr-2 rounded-md w-fit ${isMyMessage ? 'bg-green-700' : 'bg-slate-400'}`}>
-                                    <p className='text-lg'>{message.message}</p>
-                                    <p className='absolute bottom-0 right-1 text-xs text-gray-300'>{dayjs(message.createdAt).format('HH:mm')}</p>
+                            <>
+                                {newDay && <div key={`${message.id} - fecha`} className='w-full text-center text-gray-400'>{formatDateMessage(message.createdAt)}</div>}
+                                <div key={message.id} className={`relative ${isMyMessage ? 'justify-end' : 'justify-start'} flex gap-3`}>
+                                    <div
+                                        className={`relative flex min-w-10 text-white gap-1 p-1 pb-4 pr-2 rounded-md w-fit ${isMyMessage ? 'bg-green-700' : 'bg-slate-400'}`}>
+                                        <p className='text-lg'>{message.message}</p>
+                                        <p className='absolute bottom-0 right-1 text-xs text-gray-300'>{dayjs(message.createdAt).format('HH:mm')}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </>
+                            </>
                         )
                     })
                 }

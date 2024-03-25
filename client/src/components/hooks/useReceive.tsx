@@ -17,15 +17,18 @@ const useReceive = () => {
             // InitUnreadMessages()
             socket.on('msg', async (newMsg: MessageTypeResponse) => {
                 console.log("msg de otro", newMsg)
+                let isDefinedMessage = true
                 await client.setQueryData(['messages', newMsg.chat_id, token], (old: MessageTypeResponse[]) => {
                     if (!old || !old.length) {
                         console.log('primera vez que se setean los mensajes')
-                        client.invalidateQueries({ queryKey: ['messages', newMsg.chat_id, token] })
+                        isDefinedMessage = false
                         return [newMsg]
                     }
                     return [...old, newMsg]
                 })
-                client.invalidateQueries({ queryKey: ['messages', newMsg.chat_id, token] })
+                if (!isDefinedMessage) {
+                    client.invalidateQueries({ queryKey: ['messages', newMsg.chat_id, token] })
+                }
 
                 client.setQueryData(['chats', token], (old: ChatTypeResponse[]) => {
                     return old.map(chat => {
