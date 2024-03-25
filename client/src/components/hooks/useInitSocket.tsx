@@ -12,10 +12,6 @@ const useInitSocket = () => {
 
 
     useEffect(() => {
-        console.log('intentando conectarse', {
-            socket, token, user
-        })
-
         let newSocket: Socket | null = null
         if (socket === null && token && user?.name) {
             newSocket = io('http://localhost:8080', {
@@ -41,12 +37,6 @@ const useInitSocket = () => {
             })
 
         }
-
-        // return () => {
-        //     console.log('desconectando', newSocket?.id)
-        //     newSocket?.disconnect()
-        //     setSocket(null)
-        // }
     }, [user, token, setSocket])
 
 };
