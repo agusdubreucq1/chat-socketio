@@ -15,12 +15,18 @@ const useReceive = () => {
     useEffect(() => {
         if (socket && token && client && user?.sub) {
             // InitUnreadMessages()
-            socket.on('msg', (newMsg: MessageTypeResponse) => {
+            socket.on('msg', async (newMsg: MessageTypeResponse) => {
                 console.log("msg de otro", newMsg)
-                client.setQueryData(['messages', newMsg.chat_id, token], (old: MessageTypeResponse[]) => {
-                    if (!old) return [newMsg]
+                await client.setQueryData(['messages', newMsg.chat_id, token], (old: MessageTypeResponse[]) => {
+                    if (!old || !old.length) {
+                        console.log('primera vez que se setean los mensajes')
+                        client.invalidateQueries({ queryKey: ['messages', newMsg.chat_id, token] })
+                        return [newMsg]
+                    }
                     return [...old, newMsg]
                 })
+                client.invalidateQueries({ queryKey: ['messages', newMsg.chat_id, token] })
+
                 client.setQueryData(['chats', token], (old: ChatTypeResponse[]) => {
                     return old.map(chat => {
                         if (chat.id === newMsg.chat_id) {
