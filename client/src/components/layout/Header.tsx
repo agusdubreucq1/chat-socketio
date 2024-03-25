@@ -15,9 +15,9 @@ const Header: React.FC = () => {
                         ?
                         <>
                             <div role='rutas' className='flex'>
-                                <Link className='text-xl text-white hover:text-gray-400' to={'/'}>
-                                    Chats
-                                    </Link>
+                                <Link className='text-xl text-white' to={'/'}>
+                                    <p className='text-xl px-2 py-1 bg-blue-500 rounded-md hover:bg-blue-700 transition-colors'>Chats</p>
+                                </Link>
                             </div>
                             <div role='auth' className='flex gap-4'>
                                 <Link className='flex items-center gap-1 text-nowrap text-xl w-max text-white hover:text-gray-400' to={'/profile'}>
