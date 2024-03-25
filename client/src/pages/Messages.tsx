@@ -62,7 +62,7 @@ const Messages: React.FC = () => {
     }
 
     return (
-        <div className='relative flex float-left flex-col w-full h-full pb-14'>
+        <div className=' border-l border-gray-500 relative flex float-left flex-col w-full h-full pb-14 min-h-80 max-h-[calc(100dvh-138px)]'>
             <header className='sticky top-0 flex w-full items-center justify-center gap-3 px-6 pt-2 pb-4 border-b border-black bg-black z-30'>
                 <div className='w-10 h-10 rounded-full overflow-hidden border'>
                     {<img src={member.picture} alt={member.name}></img>}
@@ -77,7 +77,7 @@ const Messages: React.FC = () => {
                     </div>
                 }
             </header>
-            <div ref={msgRef} className='relative bg-scroll flex flex-col w-full h-full overflow-auto gap-1 p-4'>
+            <div ref={msgRef} className='relative bg-scroll flex flex-col w-full h-full  overflow-auto gap-1 p-4'>
                 {
                     orderMessagesByDate(messages ?? []).map((message, index) => {
                         const isMyMessage = message.user_id === user?.sub

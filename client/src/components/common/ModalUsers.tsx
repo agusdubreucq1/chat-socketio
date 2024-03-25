@@ -29,7 +29,6 @@ const ModalUsers: React.FC<ModalUsersProps> = ({ closeModal }) => {
         mutationFn: async (body: { member: string, token: string }) => { return await createChat(body.member, body.token) },
         mutationKey: ['createChat', token],
         onSuccess: async (data: ChatTypeResponse) => {
-            console.log('new chat', data.id)
             const member = data.members.filter(member => member.user_id !== user?.sub)[0]
             socket?.emit('room', data.id, member.user_id)
             await client.setQueryData(['chats', token], (oldData: ChatTypeResponse[]) => {

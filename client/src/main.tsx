@@ -5,13 +5,13 @@ import './index.css'
 import { Auth0Provider } from '@auth0/auth0-react'
 import { API_AUDIENCE, APP_CLIENT_ID, APP_DOMAIN } from './const.ts'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { ReactQueryDevtools } from '@tanstack/react-Query-devtools'
+// import { ReactQueryDevtools } from '@tanstack/react-Query-devtools'
 
 const queryClient = new QueryClient()
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
-    <ReactQueryDevtools initialIsOpen={false} />
+    {/* <ReactQueryDevtools initialIsOpen={false} /> */}
     <Auth0Provider
       domain={APP_DOMAIN}
       clientId={APP_CLIENT_ID}

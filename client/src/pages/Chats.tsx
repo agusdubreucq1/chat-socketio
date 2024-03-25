@@ -2,11 +2,6 @@ import React from 'react';
 import { useAuth0 } from '@auth0/auth0-react';
 import ModalUsers from '../components/common/ModalUsers';
 import { Outlet } from 'react-router-dom';
-// import { useSocket } from '../globalState/socket';
-// import { useOnlineUsers } from '../globalState/onlineUsers';
-// import useInitSocket from '../components/hooks/useInitSocket';
-// import useReceive from '../components/hooks/useReceive';
-import useToken from '../components/hooks/useToken';
 import { PlusIcon } from '../components/common/icons/PlusIcon';
 import ListOfChats from '../components/common/ListOfChats';
 
@@ -20,7 +15,6 @@ const Button: React.FC<ButtonType> = ({ children, ...props }) => {
 }
 
 const Chats: React.FC = () => {
-    const { token } = useToken()
     const { isAuthenticated } = useAuth0()
     const [showModal, setShowModal] = React.useState(false)
 
@@ -32,18 +26,15 @@ const Chats: React.FC = () => {
         setShowModal(false)
     }
 
-    const getToken = async () => {
-        console.log('token', token)
-    }
 
     return (
         <>
             {showModal && isAuthenticated && <ModalUsers closeModal={closeModal}></ModalUsers>}
 
-            <section className='flex flex-col w-full h-[calc(100dvh-5rem)]  bg-slate-700'>
+            <section className='flex flex-col w-full min-h-[calc(100dvh-72px)] h-full  bg-slate-700'>
                 <h1 className='p-4 text-white text-2xl'>Chats</h1>
-                <div className='flex flex-row w-full h-full border-t border-black border-b overflow-hidden'>
-                    <div className='w-1/2 max-w-72 flex flex-col justify-start gap-5 p-4 border-r border-black'>
+                <div className='flex flex-row w-full h-full overflow-hidden'>
+                    <div className='w-1/2 max-w-72 flex flex-col justify-start gap-5 p-4'>
                         <div className='flex justify-center gap-4'>
                             <div className='flex items-center justify-center'>
                                 <input className='p-1 rounded-md  bg-slate-600 focus-visible:outline focus-visible:outline-slate-500' placeholder='Buscar' />
@@ -59,7 +50,6 @@ const Chats: React.FC = () => {
                     </div>
                 </div>
             </section>
-            <button className='fixed top-0 left-0 bg-red-400 z-[80]' onClick={getToken}>get token</button>
         </>
     );
 };
