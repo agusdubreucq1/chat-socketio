@@ -62,7 +62,7 @@ const Messages: React.FC = () => {
     }
 
     return (
-        <div className=' border-l border-gray-500 relative flex float-left flex-col w-full h-full pb-14 min-h-80 max-h-[calc(100dvh-138px)]'>
+        <div className=' border-l border-gray-500 relative flex float-left flex-col w-full h-[calc(100dvh-138px)] pb-14 min-h-80 max-h-[calc(100dvh-138px)]'>
             <header className='sticky top-0 flex w-full items-center justify-center gap-3 px-6 pt-2 pb-4 border-b border-black bg-black z-30'>
                 <div className='w-10 h-10 rounded-full overflow-hidden border'>
                     {<img src={member.picture} alt={member.name}></img>}
