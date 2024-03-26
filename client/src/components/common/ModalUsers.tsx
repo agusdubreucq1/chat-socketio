@@ -51,7 +51,7 @@ const ModalUsers: React.FC<ModalUsersProps> = ({ closeModal }) => {
 
     return (
         <Modal onClick={closeModal}>
-            <div className='flex flex-col p-6 gap-4 z-50 bg-gray-400 rounded-md'>
+            <div className='flex min-w-[300px] flex-col p-6 gap-4 z-50 bg-gray-400 rounded-md'>
                 <h1 className='text-2xl'>Crear chat</h1>
                 {isError &&
                     <ErrorMessage msg={error?.message} />
