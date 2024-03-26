@@ -12,6 +12,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs from 'dayjs';
 import { formatDateMessage } from '../services/formatDateMessage';
 import useReadAllMessages from '../components/hooks/useReadAllMessages';
+import { MyMessage, TheirMessage } from '../components/common/Message';
 dayjs.extend(relativeTime)
 
 const Messages: React.FC = () => {
@@ -62,7 +63,7 @@ const Messages: React.FC = () => {
     }
 
     return (
-        <div className='relative flex float-left flex-col w-full h-full pb-14'>
+        <div className=' border-l border-gray-500 relative flex float-left flex-col w-full h-[calc(100dvh-138px)] pb-14 min-h-80 max-h-[calc(100dvh-138px)]'>
             <header className='sticky top-0 flex w-full items-center justify-center gap-3 px-6 pt-2 pb-4 border-b border-black bg-black z-30'>
                 <div className='w-10 h-10 rounded-full overflow-hidden border'>
                     {<img src={member.picture} alt={member.name}></img>}
@@ -77,8 +78,7 @@ const Messages: React.FC = () => {
                     </div>
                 }
             </header>
-            <div ref={msgRef} className='relative bg-scroll flex flex-col w-full h-full overflow-auto gap-1 p-4'>
-                {isLoading && <p>Loading...</p>}
+            <div ref={msgRef} className='relative bg-scroll flex flex-col w-full h-full  overflow-auto gap-1 p-4'>
                 {
                     orderMessagesByDate(messages ?? []).map((message, index) => {
                         const isMyMessage = message.user_id === user?.sub
@@ -87,13 +87,10 @@ const Messages: React.FC = () => {
                         return (
                             <>
                                 {newDay && <div key={`${message.id} - fecha`} className='w-full text-center text-gray-400'>{formatDateMessage(message.createdAt)}</div>}
-                                <div key={message.id} className={`relative ${isMyMessage ? 'justify-end' : 'justify-start'} flex gap-3`}>
-                                    <div
-                                        className={`relative flex min-w-10 text-white gap-1 p-1 pb-4 pr-2 rounded-md w-fit ${isMyMessage ? 'bg-green-700' : 'bg-slate-400'}`}>
-                                        <p className='text-lg'>{message.message}</p>
-                                        <p className='absolute bottom-0 right-1 text-xs text-gray-300'>{dayjs(message.createdAt).format('HH:mm')}</p>
-                                    </div>
-                                </div>
+                                {isMyMessage
+                                    ? <MyMessage key={message.id} message={message}></MyMessage>
+                                    : <TheirMessage key={message.id} message={message}></TheirMessage>
+                                }
                             </>
                         )
                     })

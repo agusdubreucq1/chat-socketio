@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useUnreadMessages } from '../../globalState/unreadMessages';
+import { formatDateLastMessage } from '../../services/formatDateMessage';
 dayjs.extend(relativeTime)
 
 const CardChat = ({ chat }: { chat: ChatTypeResponse }) => {
@@ -44,8 +45,7 @@ const CardChat = ({ chat }: { chat: ChatTypeResponse }) => {
             </div>
 
             <p className='absolute top-1 right-2 text-xs text-gray-400'>
-                {/* {lastMessage?.createdAt?.slice(0, 10)} */}
-                {lastMessage && dayjs(lastMessage?.createdAt).fromNow()}
+                {lastMessage && formatDateLastMessage(lastMessage?.createdAt)}
             </p>
         </Link>
     )

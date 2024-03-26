@@ -29,7 +29,6 @@ const ModalUsers: React.FC<ModalUsersProps> = ({ closeModal }) => {
         mutationFn: async (body: { member: string, token: string }) => { return await createChat(body.member, body.token) },
         mutationKey: ['createChat', token],
         onSuccess: async (data: ChatTypeResponse) => {
-            console.log('new chat', data.id)
             const member = data.members.filter(member => member.user_id !== user?.sub)[0]
             socket?.emit('room', data.id, member.user_id)
             await client.setQueryData(['chats', token], (oldData: ChatTypeResponse[]) => {
@@ -52,7 +51,7 @@ const ModalUsers: React.FC<ModalUsersProps> = ({ closeModal }) => {
 
     return (
         <Modal onClick={closeModal}>
-            <div className='flex flex-col p-6 gap-4 z-50 bg-gray-400 rounded-md'>
+            <div className='flex min-w-[300px] flex-col p-6 gap-4 z-50 bg-gray-400 rounded-md'>
                 <h1 className='text-2xl'>Crear chat</h1>
                 {isError &&
                     <ErrorMessage msg={error?.message} />

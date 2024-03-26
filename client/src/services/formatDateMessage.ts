@@ -12,3 +12,11 @@ export const formatDateMessage = (date) => {
     sameElse: 'DD/MM/YYYY', // Everything else ( 7/10/2011 )
   })
 }
+
+export const formatDateLastMessage = (date) => {
+  return dayjs(date).calendar(null, {
+    sameDay: 'HH:mm', // The same day ( Today at 2:30 AM )
+    lastDay: '[Yesterday]', // The day before ( Yesterday at 2:30 AM )
+    sameElse: 'DD/MM/YYYY', // Everything else ( 7/10/2011 )
+  })
+}

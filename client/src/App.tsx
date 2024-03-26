@@ -31,7 +31,6 @@ function App() {
   useEffect(() => {
       if (socket !== null && setOnlineUsers) {
           socket.on('onlineUsers', (users) => {
-              console.log('onlineUsers', users)
               setOnlineUsers(users)
           })
       }
