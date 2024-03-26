@@ -1,11 +1,8 @@
-import { useAuth0 } from "@auth0/auth0-react";
 import React from "react";
 
-const LogoutButton: React.FC = () => {
-  const { logout } = useAuth0();
-
+const LogoutButton: React.FC<React.DetailedHTMLProps<React.ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>> = ({...props}) => {
   return (
-    <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded" onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}>
+    <button {...props} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded" >
       Log Out
     </button>
   );

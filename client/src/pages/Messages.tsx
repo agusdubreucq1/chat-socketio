@@ -12,6 +12,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import dayjs from 'dayjs';
 import { formatDateMessage } from '../services/formatDateMessage';
 import useReadAllMessages from '../components/hooks/useReadAllMessages';
+import { MyMessage, TheirMessage } from '../components/common/Message';
 dayjs.extend(relativeTime)
 
 const Messages: React.FC = () => {
@@ -39,7 +40,7 @@ const Messages: React.FC = () => {
         event.preventDefault()
         const formData = new FormData(event.currentTarget)
         const msg = formData.get('msg')
-        if(msg === '') return
+        if (msg === '') return
         if (socket === null || socket?.connected === false) {
             console.log('no socket')
             return
@@ -84,16 +85,13 @@ const Messages: React.FC = () => {
                         const lastMessage = orderMessagesByDate(messages ?? [])[index - 1]
                         const newDay = message.createdAt.slice(0, 10) !== lastMessage?.createdAt.slice(0, 10)
                         return (
-                        <>
-                            {newDay && <div key={`${message.id} - fecha`} className='w-full text-center text-gray-400'>{formatDateMessage(message.createdAt)}</div>}
-                            <div key={message.id} className={`relative ${isMyMessage ? 'justify-end' : 'justify-start'} flex gap-3`}>
-                                <div
-                                    className={`relative flex min-w-10 text-white gap-1 p-1 pb-4 pr-2 rounded-md w-fit ${isMyMessage ? 'bg-green-700' : 'bg-slate-400'}`}>
-                                    <p className='text-lg'>{message.message}</p>
-                                    <p className='absolute bottom-0 right-1 text-xs text-gray-300'>{dayjs(message.createdAt).format('HH:mm')}</p>
-                                </div>
-                            </div>
-                        </>
+                            <>
+                                {newDay && <div key={`${message.id} - fecha`} className='w-full text-center text-gray-400'>{formatDateMessage(message.createdAt)}</div>}
+                                {isMyMessage
+                                    ? <MyMessage key={message.id} message={message}></MyMessage>
+                                    : <TheirMessage key={message.id} message={message}></TheirMessage>
+                                }
+                            </>
                         )
                     })
                 }

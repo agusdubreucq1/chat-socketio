@@ -3,9 +3,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import LogoutButton from '../common/LogoutButton';
 import { UserIcon } from '../common/icons/UserIcon';
+import ModalLogout from '../common/ModalLogout';
 
 const Header: React.FC = () => {
     const { loginWithRedirect, isAuthenticated, user } = useAuth0()
+    const [showModal, setShowModal] = React.useState(false)
 
     return (
         <header className='sticky top-0 z-40 flex bg-slate-900 items-center p-4 justify-center'>
@@ -24,7 +26,7 @@ const Header: React.FC = () => {
                                     <UserIcon className='w-10 h-10' />
                                     {user?.name}
                                 </Link>
-                                <LogoutButton></LogoutButton>
+                                <LogoutButton onClick={() => setShowModal(true)}></LogoutButton>
                             </div>
 
                         </>
@@ -33,7 +35,7 @@ const Header: React.FC = () => {
                             <button className='mx-4 bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded' onClick={() => loginWithRedirect()}>Login</button>
                         </>
                 }
-
+                {showModal && isAuthenticated && <ModalLogout closeModal={() => setShowModal(false)}></ModalLogout>}
             </nav>
         </header>
     );
