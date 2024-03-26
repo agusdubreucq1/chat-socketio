@@ -12,14 +12,7 @@ export interface UnreadMessages {
 }
 
 export const useUnreadMessages = create<UnreadMessages>((set, get) => ({
-    unreadMessages: (()=>{
-        const unreadMessages = localStorage.getItem('unreadMessages')
-        if (unreadMessages) {
-            return JSON.parse(unreadMessages)
-        } else {
-            return []
-        }
-    })(),
+    unreadMessages: [],
     InitUnreadMessages: async () => {
         const {token} = useToken()
         const unreadMessage = await getUnreadMessages(token)

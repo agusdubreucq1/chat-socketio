@@ -51,7 +51,7 @@ const handshake = async (socket: Socket) => {
       for (const chat of chats) {
         socket.join(chat.chat_id)
       }
-      console.log(`user: ${user.name} se unio a estos rooms: `, socket.rooms)
+      // console.log(`user: ${user.name} se unio a estos rooms: `, socket.rooms)
     })
     .catch((e) => {
         console.log('error al unir el socket a los chats', e)
@@ -91,7 +91,7 @@ export default async (socket: Socket) => {
 
   const onMessage = async (chatId: string, msg: string) => {
 
-    console.log(`el user: ${user.name} envio el msg: ${msg} al chat: ${chatId}`)
+    // console.log(`el user: ${user.name} envio el msg: ${msg} al chat: ${chatId}`)
     const newMessage = await MessageModel.createMessage(chatId, user.sub, msg)
     socket.emit('msg', newMessage) //emito a mi mismo
     socket.broadcast.to(chatId).emit('msg', newMessage) //emito a los demas del chat pero no a mi

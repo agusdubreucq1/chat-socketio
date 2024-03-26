@@ -1,21 +1,20 @@
 import { useEffect } from 'react';
 import useToken from './useToken';
 import { readMessages } from '../../services/readMessages';
-import useMessageByChatId from './useMessageByChatId';
 import { useUnreadMessages } from '../../globalState/unreadMessages';
 
 const useReadAllMessages = (idChat: string) => {
     const { token } = useToken()
-    const { messages } = useMessageByChatId(idChat as string)
     const readAll = useUnreadMessages(state => state.readAllByChat)
+    const unreadMessages = useUnreadMessages(state => state.unreadMessages)
 
     useEffect(() => {
-        if (!token || !idChat || !messages) {
-            return
+        if (token && idChat && unreadMessages && unreadMessages.length > 0) {
+            readMessages(token, idChat)
+            readAll(idChat)
         }
-        readMessages(token, idChat)
-        readAll(idChat)
-    }, [token, idChat, messages, readAll])
+
+    }, [token, idChat, unreadMessages, readAll])
 
 };
 
