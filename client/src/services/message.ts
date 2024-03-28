@@ -1,6 +1,7 @@
 import axios from 'axios'
-import { API_URL } from '../const'
 import { MessageTypeResponse } from '../vite-env'
+
+const API_URL = process.env.API_URL
 
 export const createMessage = async (message: string, chatId: string, token: string) => {
   const response = await axios.post(

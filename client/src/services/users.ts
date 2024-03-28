@@ -1,6 +1,7 @@
 import axios from 'axios'
-import { API_URL } from '../const'
 import { UserType } from '../vite-env'
+
+const API_URL = process.env.API_URL
 
 export const getUsers = async () => {
   const response = await axios.get(`${API_URL}/user`)

@@ -1,7 +1,8 @@
 import axios from 'axios'
-import { API_URL } from '../const'
 import { fetchUrl } from './fetch'
 import { ChatTypeResponse } from '../vite-env'
+
+const API_URL = process.env.API_URL
 
 export const createChatAPI = async (body, token) => {
   try {
