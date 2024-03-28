@@ -22,7 +22,7 @@ const Messages: React.FC = () => {
     const { id } = useParams()
     const { user } = useAuth0()
     const { chats } = useChats()
-    const { messages, isLoading } = useMessageByChatId(id as string)
+    const { messages } = useMessageByChatId(id as string)
     // const readAllByChat = useUnreadMessages(state => state.readAllByChat)
 
     useReadAllMessages(id as string)
